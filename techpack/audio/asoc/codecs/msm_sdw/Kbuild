@@ -114,3 +114,7 @@ endif
 # Module information used by KBuild framework
 obj-$(CONFIG_SND_SOC_MSM_SDW) += msm_sdw_dlkm.o
 msm_sdw_dlkm-y := $(MSM_SDW_OBJS)
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

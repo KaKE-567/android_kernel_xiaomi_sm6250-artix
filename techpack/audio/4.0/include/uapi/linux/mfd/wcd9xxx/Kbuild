@@ -1,2 +1,6 @@
 header-y += wcd9xxx_registers.h
 header-y += wcd9320_registers.h
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

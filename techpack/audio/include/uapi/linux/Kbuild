@@ -18,3 +18,7 @@ header-y += msm_audio_ape.h
 header-y += msm_audio_g711.h
 header-y += msm_audio_g711_dec.h
 header-y += mfd/
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

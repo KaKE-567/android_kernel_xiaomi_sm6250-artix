@@ -19,3 +19,7 @@ header-y += msm_audio_g711.h
 header-y += msm_audio_g711_dec.h
 header-y += mfd/
 header-y += wcd-spi-ac-params.h
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

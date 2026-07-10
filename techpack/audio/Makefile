@@ -55,3 +55,7 @@ obj-y += soc/
 obj-y += dsp/
 obj-y += ipc/
 obj-y += asoc/
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

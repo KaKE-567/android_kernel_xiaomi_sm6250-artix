@@ -129,3 +129,7 @@ endif
 # Module information used by KBuild framework
 obj-$(CONFIG_SND_SOC_TAS2562) += tas2562_dlkm.o
 tas2562_dlkm-y := $(TAS2562_OBJS)
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

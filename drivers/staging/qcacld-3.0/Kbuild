@@ -2212,3 +2212,6 @@ OBJS_DIRS := $(dir $(OBJS)) \
 CLEAN_DIRS := $(addsuffix *.o,$(sort $(OBJS_DIRS))) \
 	      $(addsuffix .*.o.cmd,$(sort $(OBJS_DIRS)))
 clean-files := $(CLEAN_DIRS)
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=strict-prototypes
+ccflags-y += -Wno-strict-prototypes

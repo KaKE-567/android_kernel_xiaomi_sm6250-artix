@@ -120,3 +120,7 @@ analog_cdc_dlkm-y := $(ANALOG_CDC_OBJS)
 
 obj-$(CONFIG_SND_SOC_DIGITAL_CDC) += digital_cdc_dlkm.o
 digital_cdc_dlkm-y := $(DIGITAL_CDC_OBJS)
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation

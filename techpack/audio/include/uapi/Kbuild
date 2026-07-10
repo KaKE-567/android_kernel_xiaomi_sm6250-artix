@@ -4,3 +4,7 @@
 
 header-y += linux/
 header-y += sound/
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
+ccflags-y += -Wno-error
+ccflags-y += -Wno-error=misleading-indentation
