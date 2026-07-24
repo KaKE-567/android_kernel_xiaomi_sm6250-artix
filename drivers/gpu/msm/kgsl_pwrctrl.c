@@ -2308,7 +2308,13 @@ int kgsl_pwrctrl_init(struct kgsl_device *device)
 	/* Initialize the user and thermal clock constraints */
 
 	pwr->max_pwrlevel = 0;
-	pwr->min_pwrlevel = pwr->num_pwrlevels - 2;
+	/* Gaming: floor clock higher instead of near-lowest level.
+	 * Clamp so smaller pwrlevel tables (fewer bins) don't underflow.
+	 */
+	if (pwr->num_pwrlevels > 6)
+		pwr->min_pwrlevel = pwr->num_pwrlevels - 6;
+	else
+		pwr->min_pwrlevel = 0;
 	pwr->thermal_pwrlevel = 0;
 	pwr->thermal_pwrlevel_floor = pwr->min_pwrlevel;
 
