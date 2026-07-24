@@ -74,17 +74,19 @@ static short lowmem_adj[6] = {
 	1,
 	6,
 	12,
+	15,
+	16,
 };
-
-static int lowmem_adj_size = 4;
+static int lowmem_adj_size = 6;
 static int lowmem_minfree[6] = {
-	3 * 512,	/* 6MB */
-	2 * 1024,	/* 8MB */
-	4 * 1024,	/* 16MB */
-	16 * 1024,	/* 64MB */
+	12 * 1024,	/* 48MB  - foreground/visible app cutoff */
+	18 * 1024,	/* 72MB  - visible/perceptible */
+	24 * 1024,	/* 96MB  - secondary server / backup */
+	48 * 1024,	/* 192MB - cached/background start killing here */
+	64 * 1024,	/* 256MB - cached apps */
+	96 * 1024,	/* 384MB - empty/last resort */
 };
-
-static int lowmem_minfree_size = 4;
+static int lowmem_minfree_size = 6;
 static int lmk_fast_run = 1;
 
 static unsigned long lowmem_deathpending_timeout;
