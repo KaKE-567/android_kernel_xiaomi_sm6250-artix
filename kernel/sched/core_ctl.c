@@ -1246,7 +1246,7 @@ static int cluster_init(const struct cpumask *mask)
 		return -EINVAL;
 	}
 	cluster->first_cpu = first_cpu;
-	cluster->min_cpus = 1;
+	cluster->min_cpus = (first_cpu == 6) ? 2 : 1;
 	cluster->max_cpus = cluster->num_cpus;
 	cluster->need_cpus = cluster->num_cpus;
 	cluster->offline_delay_ms = 100;
