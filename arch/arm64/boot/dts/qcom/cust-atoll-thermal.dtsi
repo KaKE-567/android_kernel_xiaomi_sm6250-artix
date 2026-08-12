@@ -17,4 +17,46 @@
 			};
 		};
 	};
+
+	skin-msm {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		trips {
+			skin_modem_trip0: modem-trip0 {
+				temperature = <75000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+
+			skin_gold_trip: gold-trip {
+				temperature = <85000>;
+				hysteresis = <0>;
+				type = "passive";
+			};
+
+			skin_modem_trip1_hvx_gpu: modem-trip1-hvx-gpu {
+				temperature = <85000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+
+			skin_modem_trip2: modem-trip2 {
+				temperature = <85000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+
+			skin_silver_trip: silver-trip {
+				temperature = <85000>;
+				hysteresis = <0>;
+				type = "passive";
+			};
+
+			skin_modem_trip3: modem-trip3 {
+				temperature = <90000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+	};
 };
