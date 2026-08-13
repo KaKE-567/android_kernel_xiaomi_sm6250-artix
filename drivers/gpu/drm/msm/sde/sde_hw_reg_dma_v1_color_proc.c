@@ -1060,8 +1060,17 @@ void reg_dmav1_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 		return;
 
 	if (!hw_cfg->payload) {
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+		if (kcal->enabled) {
+			reg_dmav1_setup_dspp_pa_hsicv17_kcal(ctx, hw_cfg->ctl);
+		} else {
+			DRM_DEBUG_DRIVER("disable pcc feature\n");
+			_dspp_pccv4_off(ctx, cfg);
+		}
+#else
 		DRM_DEBUG_DRIVER("disable pcc feature\n");
 		_dspp_pccv4_off(ctx, cfg);
+#endif
 		return;
 	}
 

@@ -894,6 +894,17 @@ void sde_cp_crtc_apply_properties(struct drm_crtc *crtc)
 
 	mutex_lock(&sde_crtc->crtc_cp_lock);
 
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+	if (!g_pcc_crtc && crtc->dev && crtc->dev->dev_private) {
+		struct msm_drm_private *priv = crtc->dev->dev_private;
+		if (priv->cp_property && priv->cp_property[SDE_CP_CRTC_DSPP_PCC]) {
+			g_pcc_crtc = crtc;
+			g_pcc_property = priv->cp_property[SDE_CP_CRTC_DSPP_PCC];
+			g_pcc_val = 1;
+		}
+	}
+#endif
+
 	/* Check if dirty lists are empty and ad features are disabled for
 	 * early return. If ad properties are active then we need to issue
 	 * dspp flush.
@@ -1025,6 +1036,13 @@ lm_property:
 			lm_prop_install_func[i](crtc);
 	}
 exit:
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+	if (priv->cp_property && priv->cp_property[SDE_CP_CRTC_DSPP_PCC]) {
+		g_pcc_crtc = crtc;
+		g_pcc_property = priv->cp_property[SDE_CP_CRTC_DSPP_PCC];
+		g_pcc_val = 1;
+	}
+#endif
 	mutex_unlock(&sde_crtc->crtc_cp_lock);
 
 }
