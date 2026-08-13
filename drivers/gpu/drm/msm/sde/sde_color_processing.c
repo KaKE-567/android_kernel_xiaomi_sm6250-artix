@@ -903,7 +903,7 @@ void sde_cp_crtc_apply_properties(struct drm_crtc *crtc)
 	mutex_lock(&sde_crtc->crtc_cp_lock);
 
 #ifdef CONFIG_DRM_MSM_KCAL_CTRL
-	if (!g_pcc_crtc && crtc->dev && crtc->dev->dev_private) {
+	if (sde_crtc->num_mixers > 0 && sde_crtc->mixers[0].hw_dspp && crtc->dev && crtc->dev->dev_private) {
 		struct msm_drm_private *priv = crtc->dev->dev_private;
 		if (priv->cp_property && priv->cp_property[SDE_CP_CRTC_DSPP_PCC]) {
 			g_pcc_crtc = crtc;
@@ -1164,15 +1164,20 @@ void kcal_force_update(void) {
 	struct sde_cp_node *prop_node = NULL;
 	struct sde_crtc *sde_crtc;
 
-	pr_info("KCAL_DEBUG: kcal_force_update called g_pcc_crtc=%pK\n", g_pcc_crtc);
-	if (!g_pcc_crtc)
+	if (!g_pcc_crtc) {
+		pr_info("KCAL_DEBUG: kcal_force_update called g_pcc_crtc is NULL\n");
 		return;
+	}
 
 	sde_crtc = to_sde_crtc(g_pcc_crtc);
 	if (!sde_crtc) {
 		pr_info("KCAL_DEBUG: sde_crtc is NULL\n");
 		return;
 	}
+
+	pr_info("KCAL_DEBUG: kcal_force_update called g_pcc_crtc=%px num_mixers=%d hw_dspp=%px\n",
+		g_pcc_crtc, sde_crtc->num_mixers,
+		sde_crtc->num_mixers ? sde_crtc->mixers[0].hw_dspp : NULL);
 
 	mutex_lock(&sde_crtc->crtc_cp_lock);
 	list_for_each_entry(prop_node, &sde_crtc->feature_list, feature_list) {
