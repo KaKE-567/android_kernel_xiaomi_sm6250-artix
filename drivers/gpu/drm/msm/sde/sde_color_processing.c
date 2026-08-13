@@ -182,6 +182,11 @@ static void sde_cp_get_hw_payload(struct sde_cp_node *prop_node,
 			hw_cfg->payload = blob->data;
 			*feature_enabled = true;
 		}
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+		else if (prop_node->feature == SDE_CP_CRTC_DSPP_PCC && sde_hw_kcal_get()->enabled) {
+			*feature_enabled = true;
+		}
+#endif
 	} else if (prop_node->prop_flags & DRM_MODE_PROP_RANGE) {
 		/* Check if local blob is Set */
 		if (!blob) {
@@ -1177,6 +1182,7 @@ void kcal_force_update(void) {
 	mutex_unlock(&sde_crtc->crtc_cp_lock);
 
 	sde_cp_crtc_apply_properties(g_pcc_crtc);
+	sde_crtc_commit_kickoff(g_pcc_crtc, NULL);
 }
 EXPORT_SYMBOL(kcal_force_update);
 #endif
