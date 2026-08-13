@@ -1059,6 +1059,9 @@ void reg_dmav1_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 	if (rc)
 		return;
 
+	pr_info("KCAL_DEBUG: setup_pccv4 enabled=%d sat=%u r=%u g=%u b=%u\n",
+		kcal->enabled, kcal->hsic.saturation, kcal->pcc.red, kcal->pcc.green, kcal->pcc.blue);
+
 	static const struct drm_msm_pcc default_pcc = {
 		.r_rr = 0x10000,
 		.g_gg = 0x10000,

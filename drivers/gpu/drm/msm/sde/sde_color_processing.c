@@ -1164,18 +1164,23 @@ void kcal_force_update(void) {
 	struct sde_cp_node *prop_node = NULL;
 	struct sde_crtc *sde_crtc;
 
+	pr_info("KCAL_DEBUG: kcal_force_update called g_pcc_crtc=%pK\n", g_pcc_crtc);
 	if (!g_pcc_crtc)
 		return;
 
 	sde_crtc = to_sde_crtc(g_pcc_crtc);
-	if (!sde_crtc)
+	if (!sde_crtc) {
+		pr_info("KCAL_DEBUG: sde_crtc is NULL\n");
 		return;
+	}
 
 	mutex_lock(&sde_crtc->crtc_cp_lock);
 	list_for_each_entry(prop_node, &sde_crtc->feature_list, feature_list) {
 		if (prop_node->feature == SDE_CP_CRTC_DSPP_PCC) {
-			if (list_empty(&prop_node->dirty_list))
+			if (list_empty(&prop_node->dirty_list)) {
+				pr_info("KCAL_DEBUG: adding PCC to dirty list\n");
 				list_add_tail(&prop_node->dirty_list, &sde_crtc->dirty_list);
+			}
 			break;
 		}
 	}
