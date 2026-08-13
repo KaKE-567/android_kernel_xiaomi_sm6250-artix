@@ -889,8 +889,7 @@ void sde_cp_crtc_apply_properties(struct drm_crtc *crtc)
 	}
 
 	sde_crtc = to_sde_crtc(crtc);
-	if (!sde_crtc) {
-		DRM_ERROR("invalid sde_crtc %pK\n", sde_crtc);
+	if (!sde_crtc || !sde_crtc->enabled) {
 		return;
 	}
 
@@ -1170,8 +1169,8 @@ void kcal_force_update(void) {
 	}
 
 	sde_crtc = to_sde_crtc(g_pcc_crtc);
-	if (!sde_crtc) {
-		pr_info("KCAL_DEBUG: sde_crtc is NULL\n");
+	if (!sde_crtc || !sde_crtc->enabled) {
+		pr_info("KCAL_DEBUG: sde_crtc is NULL or disabled\n");
 		return;
 	}
 
@@ -1192,7 +1191,6 @@ void kcal_force_update(void) {
 	mutex_unlock(&sde_crtc->crtc_cp_lock);
 
 	sde_cp_crtc_apply_properties(g_pcc_crtc);
-	sde_crtc_commit_kickoff(g_pcc_crtc, NULL);
 }
 EXPORT_SYMBOL(kcal_force_update);
 #endif
