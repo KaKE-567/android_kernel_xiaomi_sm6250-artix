@@ -28,6 +28,9 @@
 
 #ifdef CONFIG_DRM_MSM_KCAL_CTRL
 #include "sde_hw_kcal_ctrl.h"
+extern struct drm_crtc *g_pcc_crtc;
+extern struct drm_property *g_pcc_property;
+extern uint64_t g_pcc_val;
 #endif
 
 struct sde_cp_node {
