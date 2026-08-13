@@ -12,6 +12,9 @@
 #include <drm/msm_drm_pp.h>
 #include "sde_hw_color_proc_common_v4.h"
 #include "sde_hw_color_proc_v4.h"
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+#include "sde_hw_kcal_ctrl.h"
+#endif
 
 static int sde_write_3d_gamut(struct sde_hw_blk_reg_map *hw,
 		struct drm_msm_3d_gamut *payload, u32 base,
@@ -206,6 +209,15 @@ void sde_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 	struct sde_hw_cp_cfg *hw_cfg = cfg;
 	struct drm_msm_pcc *pcc_cfg;
 	struct drm_msm_pcc_coeff *coeffs = NULL;
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+	struct sde_hw_kcal *kcal = sde_hw_kcal_get();
+	static const struct drm_msm_pcc default_pcc = {
+		.r_rr = 0x10000,
+		.g_gg = 0x10000,
+		.b_bb = 0x10000,
+	};
+	u32 rr, gg, bb;
+#endif
 	int i = 0;
 	u32 base = 0;
 
@@ -214,6 +226,26 @@ void sde_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 		return;
 	}
 
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+	pr_info("KCAL_DEBUG: sde_setup_dspp_pccv4 executed enabled=%d sat=%u r=%u g=%u b=%u\n",
+		kcal->enabled, kcal->hsic.saturation, kcal->pcc.red, kcal->pcc.green, kcal->pcc.blue);
+
+	if (!hw_cfg->payload) {
+		if (kcal->enabled) {
+			pcc_cfg = (struct drm_msm_pcc *)&default_pcc;
+		} else {
+			DRM_DEBUG_DRIVER("disable pcc feature\n");
+			SDE_REG_WRITE(&ctx->hw, ctx->cap->sblk->pcc.base, 0);
+			return;
+		}
+	} else if (hw_cfg->len != sizeof(struct drm_msm_pcc)) {
+		DRM_ERROR("invalid size of payload len %d exp %zd\n",
+				hw_cfg->len, sizeof(struct drm_msm_pcc));
+		return;
+	} else {
+		pcc_cfg = hw_cfg->payload;
+	}
+#else
 	if (!hw_cfg->payload) {
 		DRM_DEBUG_DRIVER("disable pcc feature\n");
 		SDE_REG_WRITE(&ctx->hw, ctx->cap->sblk->pcc.base, 0);
@@ -227,41 +259,45 @@ void sde_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 	}
 
 	pcc_cfg = hw_cfg->payload;
+#endif
 
 	for (i = 0; i < PCC_NUM_PLANES; i++) {
 		base = ctx->cap->sblk->pcc.base + (i * sizeof(u32));
 		switch (i) {
 		case 0:
 			coeffs = &pcc_cfg->r;
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_RR_OFF, pcc_cfg->r_rr);
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_GG_OFF, pcc_cfg->r_gg);
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_BB_OFF, pcc_cfg->r_bb);
+			rr = pcc_cfg->r_rr;
+			gg = pcc_cfg->r_gg;
+			bb = pcc_cfg->r_bb;
 			break;
 		case 1:
 			coeffs = &pcc_cfg->g;
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_RR_OFF, pcc_cfg->g_rr);
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_GG_OFF, pcc_cfg->g_gg);
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_BB_OFF, pcc_cfg->g_bb);
+			rr = pcc_cfg->g_rr;
+			gg = pcc_cfg->g_gg;
+			bb = pcc_cfg->g_bb;
 			break;
 		case 2:
 			coeffs = &pcc_cfg->b;
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_RR_OFF, pcc_cfg->b_rr);
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_GG_OFF, pcc_cfg->b_gg);
-			SDE_REG_WRITE(&ctx->hw,
-				base + PCC_BB_OFF, pcc_cfg->b_bb);
+			rr = pcc_cfg->b_rr;
+			gg = pcc_cfg->b_gg;
+			bb = pcc_cfg->b_bb;
 			break;
 		default:
 			DRM_ERROR("invalid pcc plane: %d\n", i);
 			return;
 		}
+
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+		if (kcal->enabled) {
+			if (i == 0) rr = (rr * kcal->pcc.red) / 256;
+			if (i == 1) gg = (gg * kcal->pcc.green) / 256;
+			if (i == 2) bb = (bb * kcal->pcc.blue) / 256;
+		}
+#endif
+
+		SDE_REG_WRITE(&ctx->hw, base + PCC_RR_OFF, rr);
+		SDE_REG_WRITE(&ctx->hw, base + PCC_GG_OFF, gg);
+		SDE_REG_WRITE(&ctx->hw, base + PCC_BB_OFF, bb);
 
 		SDE_REG_WRITE(&ctx->hw, base + PCC_C_OFF, coeffs->c);
 		SDE_REG_WRITE(&ctx->hw, base + PCC_R_OFF, coeffs->r);
@@ -274,4 +310,30 @@ void sde_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 	}
 
 	SDE_REG_WRITE(&ctx->hw, ctx->cap->sblk->pcc.base, PCC_EN);
+
+#ifdef CONFIG_DRM_MSM_KCAL_CTRL
+	if (kcal->enabled) {
+		struct drm_msm_pa_hsic hsic_cfg = sde_hw_kcal_hsic_struct();
+		u32 hsic_base = ctx->cap->sblk->hsic.base;
+		u32 hsic_op = PA_EN;
+
+		if (hsic_cfg.flags & PA_HSIC_HUE_ENABLE) {
+			SDE_REG_WRITE(&ctx->hw, hsic_base + PA_HUE_OFF, hsic_cfg.hue & PA_HUE_MASK);
+			hsic_op |= PA_HUE_EN;
+		}
+		if (hsic_cfg.flags & PA_HSIC_SAT_ENABLE) {
+			SDE_REG_WRITE(&ctx->hw, hsic_base + PA_SAT_OFF, hsic_cfg.saturation & PA_SAT_MASK);
+			hsic_op |= PA_SAT_EN;
+		}
+		if (hsic_cfg.flags & PA_HSIC_VAL_ENABLE) {
+			SDE_REG_WRITE(&ctx->hw, hsic_base + PA_VAL_OFF, hsic_cfg.value & PA_VAL_MASK);
+			hsic_op |= PA_VAL_EN;
+		}
+		if (hsic_cfg.flags & PA_HSIC_CONT_ENABLE) {
+			SDE_REG_WRITE(&ctx->hw, hsic_base + PA_CONT_OFF, hsic_cfg.contrast & PA_CONT_MASK);
+			hsic_op |= PA_CONT_EN;
+		}
+		SDE_REG_WRITE(&ctx->hw, hsic_base, hsic_op);
+	}
+#endif
 }
