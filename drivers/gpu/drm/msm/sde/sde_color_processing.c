@@ -1156,10 +1156,27 @@ exit:
 
 #ifdef CONFIG_DRM_MSM_KCAL_CTRL
 void kcal_force_update(void) {
-	if (g_pcc_crtc) {
-		pr_info("%s force kad kcal\n",__func__);
-		sde_cp_crtc_set_property(g_pcc_crtc, g_pcc_property, g_pcc_val);
+	struct sde_cp_node *prop_node = NULL;
+	struct sde_crtc *sde_crtc;
+
+	if (!g_pcc_crtc)
+		return;
+
+	sde_crtc = to_sde_crtc(g_pcc_crtc);
+	if (!sde_crtc)
+		return;
+
+	mutex_lock(&sde_crtc->crtc_cp_lock);
+	list_for_each_entry(prop_node, &sde_crtc->feature_list, feature_list) {
+		if (prop_node->feature == SDE_CP_CRTC_DSPP_PCC) {
+			if (list_empty(&prop_node->dirty_list))
+				list_add_tail(&prop_node->dirty_list, &sde_crtc->dirty_list);
+			break;
+		}
 	}
+	mutex_unlock(&sde_crtc->crtc_cp_lock);
+
+	sde_cp_crtc_apply_properties(g_pcc_crtc);
 }
 EXPORT_SYMBOL(kcal_force_update);
 #endif

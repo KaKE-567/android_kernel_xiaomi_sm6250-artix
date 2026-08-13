@@ -1059,28 +1059,33 @@ void reg_dmav1_setup_dspp_pccv4(struct sde_hw_dspp *ctx, void *cfg)
 	if (rc)
 		return;
 
+	static const struct drm_msm_pcc default_pcc = {
+		.r_rr = 0x10000,
+		.g_gg = 0x10000,
+		.b_bb = 0x10000,
+	};
+
 	if (!hw_cfg->payload) {
 #ifdef CONFIG_DRM_MSM_KCAL_CTRL
 		if (kcal->enabled) {
-			reg_dmav1_setup_dspp_pa_hsicv17_kcal(ctx, hw_cfg->ctl);
+			pcc_cfg = (struct drm_msm_pcc *)&default_pcc;
 		} else {
 			DRM_DEBUG_DRIVER("disable pcc feature\n");
 			_dspp_pccv4_off(ctx, cfg);
+			return;
 		}
 #else
 		DRM_DEBUG_DRIVER("disable pcc feature\n");
 		_dspp_pccv4_off(ctx, cfg);
-#endif
 		return;
-	}
-
-	if (hw_cfg->len != sizeof(struct drm_msm_pcc)) {
+#endif
+	} else if (hw_cfg->len != sizeof(struct drm_msm_pcc)) {
 		DRM_ERROR("invalid size of payload len %d exp %zd\n",
 				hw_cfg->len, sizeof(struct drm_msm_pcc));
 		return;
+	} else {
+		pcc_cfg = hw_cfg->payload;
 	}
-
-	pcc_cfg = hw_cfg->payload;
 
 	dma_ops = sde_reg_dma_get_ops();
 	dma_ops->reset_reg_dma_buf(dspp_buf[PCC][ctx->idx]);
