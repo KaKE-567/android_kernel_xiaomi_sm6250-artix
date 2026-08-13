@@ -601,6 +601,15 @@ source "drivers/misc/mic/Kconfig"
 source "drivers/misc/genwqe/Kconfig"
 source "drivers/misc/echo/Kconfig"
 source "drivers/misc/cxl/Kconfig"
+config DYNAMIC_FSYNC
+	bool "Dynamic Fsync"
+	default y
+	help
+	  Dynamic Fsync disables synchronous filesystem sync (fsync) calls while
+	  the display screen is active/unblanked to boost storage I/O throughput
+	  and eliminate micro-stutters during app loading and 3D gaming. When the
+	  screen turns off, all dirty data is automatically synced to disk.
+
 source "drivers/misc/fpr_FingerprintCard/Kconfig"
 endmenu
 
