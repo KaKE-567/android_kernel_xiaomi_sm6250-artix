@@ -36,17 +36,17 @@ static struct work_struct input_boost_work;
 
 static bool input_boost_enabled;
 
-static unsigned int input_boost_ms = 40;
+static unsigned int input_boost_ms = 100;
 module_param(input_boost_ms, uint, 0644);
 
-static unsigned int sched_boost_on_input;
+static unsigned int sched_boost_on_input = 1;
 module_param(sched_boost_on_input, uint, 0644);
 
 static bool sched_boost_active;
 
 static struct delayed_work input_boost_rem;
 static u64 last_input_time;
-#define MIN_INPUT_INTERVAL (150 * USEC_PER_MSEC)
+#define MIN_INPUT_INTERVAL (50 * USEC_PER_MSEC)
 
 static int set_input_boost_freq(const char *buf, const struct kernel_param *kp)
 {
