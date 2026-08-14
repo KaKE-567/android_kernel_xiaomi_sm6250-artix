@@ -2841,6 +2841,18 @@ int smblib_set_prop_battery_charging_enabled(struct smb_charger *chg,
 				val->intval ? "enable" : "disable", rc);
 	}
 
+	/* Instantly disable/enable parallel charger to avoid delay */
+	if (chg->pl_disable_votable)
+		vote(chg->pl_disable_votable, USER_VOTER, !val->intval, 0);
+
+	/* Instantly drop target fast charging current to 0mA */
+	if (chg->fcc_votable) {
+		if (!val->intval)
+			vote(chg->fcc_votable, USER_VOTER, true, 0);
+		else
+			vote(chg->fcc_votable, USER_VOTER, false, 0);
+	}
+
 	if (val->intval) {
 		rc = smblib_masked_write(chg, CHARGING_ENABLE_CMD_REG,
 			CHARGING_ENABLE_CMD_BIT, CHARGING_ENABLE_CMD_BIT);
