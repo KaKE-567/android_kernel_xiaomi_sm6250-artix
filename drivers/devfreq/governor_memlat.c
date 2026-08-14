@@ -407,6 +407,8 @@ static int devfreq_memlat_ev_handler(struct devfreq *df,
 
 	case DEVFREQ_GOV_INTERVAL:
 		sample_ms = *(unsigned int *)data;
+		if (sample_ms > 4)
+			sample_ms = 4;
 		sample_ms = max(MIN_MS, sample_ms);
 		sample_ms = min(MAX_MS, sample_ms);
 		devfreq_interval_update(df, &sample_ms);
