@@ -350,7 +350,7 @@ static struct attribute_group compute_dev_attr_group = {
 	.attrs = compute_dev_attr,
 };
 
-#define MIN_MS	10U
+#define MIN_MS	4U
 #define MAX_MS	500U
 static int devfreq_memlat_ev_handler(struct devfreq *df,
 					unsigned int event, void *data)
@@ -361,6 +361,8 @@ static int devfreq_memlat_ev_handler(struct devfreq *df,
 	switch (event) {
 	case DEVFREQ_GOV_START:
 		sample_ms = df->profile->polling_ms;
+		if (sample_ms > 4)
+			sample_ms = 4;
 		sample_ms = max(MIN_MS, sample_ms);
 		sample_ms = min(MAX_MS, sample_ms);
 		df->profile->polling_ms = sample_ms;
