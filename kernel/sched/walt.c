@@ -157,7 +157,7 @@ __read_mostly unsigned int walt_cpu_util_freq_divisor;
 /* Initial task load. Newly created tasks are assigned this load. */
 unsigned int __read_mostly sched_init_task_load_windows;
 unsigned int __read_mostly sched_init_task_load_windows_scaled;
-unsigned int __read_mostly sysctl_sched_init_task_load_pct = 80;
+unsigned int __read_mostly sysctl_sched_init_task_load_pct = 90;
 
 /*
  * Maximum possible frequency across all cpus. Task demand and cpu
@@ -2513,16 +2513,16 @@ DEFINE_RWLOCK(related_thread_group_lock);
  * Task groups whose aggregate demand on a cpu is more than
  * sched_group_upmigrate need to be up-migrated if possible.
  */
-unsigned int __read_mostly sched_group_upmigrate = 12000000;
-unsigned int __read_mostly sysctl_sched_group_upmigrate_pct = 60;
+unsigned int __read_mostly sched_group_upmigrate = 10000000;
+unsigned int __read_mostly sysctl_sched_group_upmigrate_pct = 50;
 
 /*
  * Task groups, once up-migrated, will need to drop their aggregate
  * demand to less than sched_group_downmigrate before they are "down"
  * migrated.
  */
-unsigned int __read_mostly sched_group_downmigrate = 8000000;
-unsigned int __read_mostly sysctl_sched_group_downmigrate_pct = 40;
+unsigned int __read_mostly sched_group_downmigrate = 6000000;
+unsigned int __read_mostly sysctl_sched_group_downmigrate_pct = 30;
 
 static int
 group_will_fit(struct sched_cluster *cluster, struct related_thread_group *grp,
