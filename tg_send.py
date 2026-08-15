@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 ArtixV4 Kernel Telegram Uploader
-Packages the compiled kernel into an AnyKernel3 zip and sends it to Telegram.
+Packages the compiled kernel + dtbo into an AnyKernel3 zip,
+generates a detailed git changelog, and sends it to Telegram.
 """
 
 import os
@@ -9,12 +10,14 @@ import sys
 import subprocess
 import json
 import datetime
+import html
 import requests
 
 CONFIG_FILE = os.path.expanduser("~/.tg_kernel_config")
 KERNEL_DIR = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(KERNEL_DIR, "out")
 IMAGE_PATH = os.path.join(OUT_DIR, "arch/arm64/boot/Image.gz-dtb")
+DTBO_PATH = os.path.join(OUT_DIR, "arch/arm64/boot/dtbo.img")
 ANYKERNEL_DIR = os.path.join(KERNEL_DIR, "anykernel")
 
 def load_saved_credentials():
@@ -53,6 +56,28 @@ def get_git_info():
     except Exception:
         return "unknown", "Custom build", "artixv4"
 
+def get_changelog(count=5):
+    try:
+        log_output = subprocess.check_output(
+            ["git", "-C", KERNEL_DIR, "log", f"-{count}", "--format=• <code>%h</code>: %s"],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        # Escape any special html chars in commit titles
+        lines = log_output.split("\n")
+        escaped_lines = []
+        for line in lines:
+            if line.startswith("• <code>"):
+                parts = line.split("</code>: ", 1)
+                if len(parts) == 2:
+                    escaped_lines.append(f"{parts[0]}</code>: {html.escape(parts[1])}")
+                else:
+                    escaped_lines.append(html.escape(line))
+            else:
+                escaped_lines.append(html.escape(line))
+        return "\n".join(escaped_lines)
+    except Exception:
+        return "• Recent improvements and performance optimizations"
+
 def package_anykernel_zip():
     if not os.path.isfile(IMAGE_PATH):
         print(f"❌ Error: Compiled kernel not found at {IMAGE_PATH}")
@@ -70,9 +95,15 @@ def package_anykernel_zip():
 
     print(f"📦 Packaging AnyKernel3 zip: {zip_name} ...")
     
-    # Copy Image.gz-dtb into anykernel folder
+    # Copy Image.gz-dtb and dtbo.img into anykernel folder
     ak_image = os.path.join(ANYKERNEL_DIR, "Image.gz-dtb")
     subprocess.run(["cp", "-f", IMAGE_PATH, ak_image], check=True)
+
+    ak_dtbo = os.path.join(ANYKERNEL_DIR, "dtbo.img")
+    has_dtbo = False
+    if os.path.isfile(DTBO_PATH):
+        subprocess.run(["cp", "-f", DTBO_PATH, ak_dtbo], check=True)
+        has_dtbo = True
 
     # Create zip from anykernel folder contents
     subprocess.run(
@@ -81,11 +112,13 @@ def package_anykernel_zip():
         check=True
     )
     
-    # Clean up copied Image.gz-dtb from anykernel dir
+    # Clean up copied files from anykernel dir
     if os.path.isfile(ak_image):
         os.remove(ak_image)
+    if os.path.isfile(ak_dtbo):
+        os.remove(ak_dtbo)
 
-    return zip_out
+    return zip_out, has_dtbo
 
 def send_file_to_telegram(token, chat_id, file_path, caption):
     url = f"https://api.telegram.org/bot{token}/sendDocument"
@@ -108,7 +141,7 @@ def send_file_to_telegram(token, chat_id, file_path, caption):
 
     res = response.json()
     if res.get("ok"):
-        print("✅ Success! File sent successfully to Telegram.")
+        print("✅ Success! Kernel zip sent successfully to Telegram with changelog.")
         return True
     else:
         print(f"❌ Telegram API Error: {res.get('description')}")
@@ -152,26 +185,31 @@ def main():
         sys.exit(1)
 
     commit_hash, commit_msg, branch = get_git_info()
+    changelog = get_changelog(count=5)
     build_time = datetime.datetime.now().strftime("%d-%b-%Y %H:%M:%S UTC")
 
-    # Build caption
+    # Package AnyKernel3 flashable zip
+    zip_path, has_dtbo = package_anykernel_zip()
+
+    # Build rich caption with changelog
     caption = (
-        f"🔥 <b>ArtixV4 Gaming Kernel</b> 🔥\n\n"
-        f"📱 <b>Device:</b> Xiaomi SM6250 / Snapdragon 720G (Atoll)\n"
+        f"🔥 <b>ArtixV4™ Gaming Kernel</b> 🔥\n\n"
+        f"📱 <b>Device:</b> Xiaomi SM6250 (Atoll)\n"
         f"⚡ <b>Branch:</b> <code>{branch}</code>\n"
-        f"🏷 <b>Commit:</b> <code>{commit_hash}</code> - {commit_msg}\n"
-        f"🛠 <b>Compiler:</b> Proton Clang 13.0.0 (LLVM)\n"
-        f"✨ <b>Features:</b>\n"
-        f"   • BBRplus TCP Congestion Control\n"
-        f"   • Dynamic Fsync 2.0\n"
-        f"   • KernelSU Integrated\n"
-        f"   • 300Hz Gaming Tick & Low-latency Sched\n"
-        f"   • Multi-Queue Deadline I/O\n\n"
+        f"🏷 <b>Latest Commit:</b> <code>{commit_hash}</code>\n"
+        f"🛠 <b>Compiler:</b> Proton Clang 13.0.0\n"
+        f"📦 <b>Included:</b> Image.gz-dtb{' + dtbo.img' if has_dtbo else ''}\n\n"
+        f"📝 <b>Changelog:</b>\n"
+        f"{changelog}\n\n"
+        f"✨ <b>Key Highlights:</b>\n"
+        f"   • BBRplus & Westwood+ TCP with Fair Queueing (FQ)\n"
+        f"   • Disabled Auto-Corking & 10ms ACK for BGMI Ping\n"
+        f"   • Dynamic Fsync 2.0 (Zero Screen-ON Latency)\n"
+        f"   • Relaxed 85°C/90°C Thermal Trip DTBO\n"
+        f"   • 300Hz Tick & Low Latency EAS Scheduler\n"
+        f"   • KernelSU Root Support\n\n"
         f"🕒 <b>Build Date:</b> {build_time}"
     )
-
-    # Package AnyKernel3 flashable zip
-    zip_path = package_anykernel_zip()
 
     # Upload zip
     send_file_to_telegram(token, chat_id, zip_path, caption)

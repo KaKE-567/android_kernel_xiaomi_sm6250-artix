@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
 ArtixV4 Telegram Uploader
-Uploads Image.gz-dtb or AnyKernel3 zip to Telegram.
+Uploads Image.gz-dtb or AnyKernel3 zip to Telegram with full changelog.
 """
 import os
 import sys
 import subprocess
 import json
+import datetime
+import html
 import requests
 
 CONFIG_FILE = os.path.expanduser("~/.tg_kernel_config")
@@ -25,6 +27,7 @@ saved_token, saved_chat_id = load_saved_credentials()
 
 KERNEL_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGE_PATH = os.path.join(KERNEL_DIR, "out/arch/arm64/boot/Image.gz-dtb")
+DTBO_PATH = os.path.join(KERNEL_DIR, "out/arch/arm64/boot/dtbo.img")
 ANYKERNEL_DIR = os.path.join(KERNEL_DIR, "anykernel")
 OUT_DIR = os.path.join(KERNEL_DIR, "out")
 
@@ -49,19 +52,49 @@ if not TOKEN or not CHAT_ID:
     print("  or: ./tg_send.py (Interactive)")
     sys.exit(1)
 
+def get_changelog(count=5):
+    try:
+        log_output = subprocess.check_output(
+            ["git", "-C", KERNEL_DIR, "log", f"-{count}", "--format=• <code>%h</code>: %s"],
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        lines = log_output.split("\n")
+        escaped_lines = []
+        for line in lines:
+            if line.startswith("• <code>"):
+                parts = line.split("</code>: ", 1)
+                if len(parts) == 2:
+                    escaped_lines.append(f"{parts[0]}</code>: {html.escape(parts[1])}")
+                else:
+                    escaped_lines.append(html.escape(line))
+            else:
+                escaped_lines.append(html.escape(line))
+        return "\n".join(escaped_lines)
+    except Exception:
+        return "• Performance, networking, and thermal optimizations"
+
+has_dtbo = False
 # If no target file specified, package AnyKernel3 zip or use Image.gz-dtb
 if not TARGET_FILE:
     if os.path.isdir(ANYKERNEL_DIR) and os.path.isfile(IMAGE_PATH):
-        # Auto-package AnyKernel3 zip
         commit_hash = subprocess.check_output(["git", "-C", KERNEL_DIR, "rev-parse", "--short", "HEAD"]).decode().strip()
-        zip_name = f"ArtixV4-AntiGravity-{commit_hash}.zip"
+        date_str = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        zip_name = f"ArtixV4-AntiGravity-{commit_hash}-{date_str}.zip"
         zip_path = os.path.join(OUT_DIR, zip_name)
         
         ak_image = os.path.join(ANYKERNEL_DIR, "Image.gz-dtb")
         subprocess.run(["cp", "-f", IMAGE_PATH, ak_image], check=True)
+        
+        ak_dtbo = os.path.join(ANYKERNEL_DIR, "dtbo.img")
+        if os.path.isfile(DTBO_PATH):
+            subprocess.run(["cp", "-f", DTBO_PATH, ak_dtbo], check=True)
+            has_dtbo = True
+            
         subprocess.run(f"cd '{ANYKERNEL_DIR}' && zip -r9 '{zip_path}' . -x '*.git*' > /dev/null", shell=True, check=True)
         if os.path.isfile(ak_image):
             os.remove(ak_image)
+        if os.path.isfile(ak_dtbo):
+            os.remove(ak_dtbo)
         TARGET_FILE = zip_path
     elif os.path.isfile(IMAGE_PATH):
         TARGET_FILE = IMAGE_PATH
@@ -77,6 +110,28 @@ file_name = os.path.basename(TARGET_FILE)
 file_size_mb = os.path.getsize(TARGET_FILE) / (1024 * 1024)
 url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
 
+commit_hash = subprocess.check_output(["git", "-C", KERNEL_DIR, "rev-parse", "--short", "HEAD"]).decode().strip()
+branch = subprocess.check_output(["git", "-C", KERNEL_DIR, "rev-parse", "--abbrev-ref", "HEAD"]).decode().strip()
+changelog = get_changelog(5)
+build_time = datetime.datetime.now().strftime("%d-%b-%Y %H:%M:%S UTC")
+
+caption = (
+    f"🔥 <b>ArtixV4™ Gaming Kernel</b> 🔥\n\n"
+    f"📱 <b>Device:</b> Xiaomi SM6250 (Atoll)\n"
+    f"⚡ <b>Branch:</b> <code>{branch}</code>\n"
+    f"🏷 <b>Commit:</b> <code>{commit_hash}</code>\n"
+    f"🛠 <b>Compiler:</b> Proton Clang 13.0.0\n"
+    f"📦 <b>Included:</b> Image.gz-dtb{' + dtbo.img' if has_dtbo else ''}\n\n"
+    f"📝 <b>Changelog:</b>\n"
+    f"{changelog}\n\n"
+    f"✨ <b>Features:</b>\n"
+    f"   • BBRplus & Westwood+ TCP + FQ CoDel\n"
+    f"   • Disabled Auto-Corking & 10ms ACK for BGMI\n"
+    f"   • Dynamic Fsync 2.0 & 85°C/90°C Thermal DTBO\n"
+    f"   • KernelSU Integrated\n\n"
+    f"🕒 <b>Build Date:</b> {build_time}"
+)
+
 print(f"🚀 Uploading '{file_name}' ({file_size_mb:.2f} MB) to Telegram...")
 
 try:
@@ -85,14 +140,15 @@ try:
             url,
             data={
                 "chat_id": CHAT_ID,
-                "caption": "🔥 ArtixV4 Gaming Kernel for Xiaomi SM6250 (BBRplus, Dynamic Fsync, KernelSU, 300Hz)"
+                "caption": caption,
+                "parse_mode": "HTML"
             },
             files={"document": f},
             timeout=180
         )
     res_json = response.json()
     if res_json.get("ok"):
-        print(f"✅ Success! '{file_name}' was sent to your Telegram chat.")
+        print(f"✅ Success! '{file_name}' was sent to your Telegram chat with changelog.")
     else:
         print(f"❌ Telegram API Error: {res_json.get('description', 'Unknown error')}")
 except requests.exceptions.RequestException as e:

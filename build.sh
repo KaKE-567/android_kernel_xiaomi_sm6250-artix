@@ -47,6 +47,13 @@ make O="${OUT_DIR}" ARCH="${ARCH}" CC="${CC}" HOSTCC="${HOSTCC}" HOSTCXX="${HOST
      CROSS_COMPILE="${CROSS_COMPILE}" CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
      -j"${JOBS}" Image.gz-dtb dtbs
 
+# Generate dtbo.img from compiled overlay dtbo files
+if ls "${OUT_DIR}"/arch/arm64/boot/dts/qcom/*overlay.dtbo 1> /dev/null 2>&1; then
+    echo "Creating dtbo.img..."
+    python3 "${KERNEL_DIR}/scripts/mkdtboimg.py" create "${OUT_DIR}/arch/arm64/boot/dtbo.img" \
+            "${OUT_DIR}"/arch/arm64/boot/dts/qcom/*overlay.dtbo
+fi
+
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 
