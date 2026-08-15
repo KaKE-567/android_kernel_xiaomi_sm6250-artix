@@ -33,7 +33,7 @@ static unsigned int _context_drawqueue_size = 50;
 static unsigned int _context_queue_wait = 10000;
 
 /* Number of drawobjs sent at a time from a single context */
-static unsigned int _context_drawobj_burst = 5;
+static unsigned int _context_drawobj_burst = 8;
 
 /*
  * GFT throttle parameters. If GFT recovered more than
@@ -48,7 +48,7 @@ static unsigned int _fault_throttle_burst = 3;
  * Maximum ringbuffer inflight for the single submitting context case - this
  * should be sufficiently high to keep the GPU loaded
  */
-static unsigned int _dispatcher_q_inflight_hi = 15;
+static unsigned int _dispatcher_q_inflight_hi = 20;
 
 /*
  * Minimum inflight for the multiple context case - this should sufficiently low
