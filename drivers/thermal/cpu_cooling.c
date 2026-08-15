@@ -716,8 +716,8 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
 					     0, (void *)(long)cpu);
 	}
 update_frequency:
-	clip_freq = cpufreq_cdev->freq_table[state].frequency;
-	cpufreq_cdev->cpufreq_state = state;
+	clip_freq = cpufreq_cdev->freq_table[0].frequency;
+	cpufreq_cdev->cpufreq_state = 0;
 	cpufreq_cdev->clipped_freq = clip_freq;
 
 	/* Check if the device has a platform mitigation function that

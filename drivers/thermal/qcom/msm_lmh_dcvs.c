@@ -182,6 +182,10 @@ static unsigned long limits_mitigation_notify(struct limits_dcvs_hw *hw)
 
 	if (max_cpu_ct == cpumask_weight(&hw->core_map))
 		max_limit = max_cpu_limit;
+
+	if (hw->max_freq[0] != U32_MAX && hw->max_freq[0] > 0)
+		max_limit = hw->max_freq[0];
+
 	sched_update_cpu_freq_min_max(&hw->core_map, 0, max_limit);
 	pr_debug("CPU:%d max limit:%lu\n", cpumask_first(&hw->core_map),
 			max_limit);
