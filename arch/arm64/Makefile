@@ -103,6 +103,7 @@ KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
 KBUILD_CFLAGS	+= -fno-pic
 KBUILD_CFLAGS	+= $(call cc-option, -march=armv8.2-a+crypto+fp16+dotprod+rcpc -mtune=cortex-a76)
 KBUILD_CFLAGS	+= $(call cc-option, -mllvm -hot-cold-split)
+KBUILD_CFLAGS	+= $(call cc-option, -fno-math-errno -fno-trapping-math)
 KBUILD_AFLAGS	+= $(call as-option, -march=armv8.2-a+crypto+fp16+dotprod+rcpc)
 KBUILD_AFLAGS	+= $(lseinstr) $(brokengasinst) $(vdso32)
 
