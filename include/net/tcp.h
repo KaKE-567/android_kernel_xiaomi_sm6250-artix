@@ -580,6 +580,8 @@ void tcp_simple_retransmit(struct sock *);
 void tcp_enter_recovery(struct sock *sk, bool ece_ack);
 int tcp_trim_head(struct sock *, struct sk_buff *, u32);
 int tcp_fragment(struct sock *, struct sk_buff *, u32, unsigned int, gfp_t);
+bool tcp_snd_wnd_test(const struct tcp_sock *tp, const struct sk_buff *skb,
+		      unsigned int cur_mss);
 
 void tcp_send_probe0(struct sock *);
 void tcp_send_partial(struct sock *);
