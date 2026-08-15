@@ -2513,16 +2513,16 @@ DEFINE_RWLOCK(related_thread_group_lock);
  * Task groups whose aggregate demand on a cpu is more than
  * sched_group_upmigrate need to be up-migrated if possible.
  */
-unsigned int __read_mostly sched_group_upmigrate = 14000000;
-unsigned int __read_mostly sysctl_sched_group_upmigrate_pct = 70;
+unsigned int __read_mostly sched_group_upmigrate = 12000000;
+unsigned int __read_mostly sysctl_sched_group_upmigrate_pct = 60;
 
 /*
  * Task groups, once up-migrated, will need to drop their aggregate
  * demand to less than sched_group_downmigrate before they are "down"
  * migrated.
  */
-unsigned int __read_mostly sched_group_downmigrate = 11000000;
-unsigned int __read_mostly sysctl_sched_group_downmigrate_pct = 55;
+unsigned int __read_mostly sched_group_downmigrate = 8000000;
+unsigned int __read_mostly sysctl_sched_group_downmigrate_pct = 40;
 
 static int
 group_will_fit(struct sched_cluster *cluster, struct related_thread_group *grp,

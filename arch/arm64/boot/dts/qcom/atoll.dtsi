@@ -3217,11 +3217,11 @@
 		qcom,target-dev = <&cpu0_cpu_l3_lat>;
 		qcom,cachemiss-ev = <0x17>;
 		qcom,core-dev-table =
-			<  768000  300000000 >,
-			< 1017600  556800000 >,
-			< 1248000  806400000 >,
-			< 1516800  940800000 >,
-			< 1804800 1401000000 >;
+			<  768000  556800000 >,
+			< 1017600  806400000 >,
+			< 1248000  940800000 >,
+			< 1516800 1209600000 >,
+			< 1804800 1459000000 >;
 	};
 
 	cpu6_cpu_l3_lat: qcom,cpu6-cpu-l3-lat {
@@ -3267,9 +3267,9 @@
 		qcom,target-dev = <&cpu0_cpu_llcc_lat>;
 		qcom,cachemiss-ev = <0x2A>;
 		qcom,core-dev-table =
-			< 1248000 MHZ_TO_MBPS(300, 16) >,
-			< 1516800 MHZ_TO_MBPS(466, 16) >,
-			< 1804800 MHZ_TO_MBPS(600, 16) >;
+			< 1248000 MHZ_TO_MBPS(466, 16) >,
+			< 1516800 MHZ_TO_MBPS(600, 16) >,
+			< 1804800 MHZ_TO_MBPS(933, 16) >;
 	};
 
 	cpu6_cpu_llcc_lat: qcom,cpu6-cpu-llcc-lat {
@@ -3309,11 +3309,11 @@
 		qcom,target-dev = <&cpu0_llcc_ddr_lat>;
 		qcom,cachemiss-ev = <0x1000>;
 		qcom,core-dev-table =
-			<  768000 MHZ_TO_MBPS( 300, 4) >,
-			< 1017600 MHZ_TO_MBPS( 451, 4) >,
-			< 1248000 MHZ_TO_MBPS( 547, 4) >,
-			< 1516800 MHZ_TO_MBPS( 768, 4) >,
-			< 1804800 MHZ_TO_MBPS(1017, 4) >;
+			<  768000 MHZ_TO_MBPS( 547, 4) >,
+			< 1017600 MHZ_TO_MBPS( 768, 4) >,
+			< 1248000 MHZ_TO_MBPS(1017, 4) >,
+			< 1516800 MHZ_TO_MBPS(1555, 4) >,
+			< 1804800 MHZ_TO_MBPS(2133, 4) >;
 	};
 
 	cpu6_llcc_ddr_lat: qcom,cpu6-llcc-ddr-lat {
