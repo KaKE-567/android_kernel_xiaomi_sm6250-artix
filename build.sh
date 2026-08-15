@@ -22,6 +22,14 @@ export CROSS_COMPILE="${TOOLCHAIN_DIR}/bin/aarch64-linux-gnu-"
 export CROSS_COMPILE_ARM32="${TOOLCHAIN_DIR}/bin/arm-linux-gnueabi-"
 export CROSS_COMPILE_COMPAT="${TOOLCHAIN_DIR}/bin/arm-linux-gnueabi-"
 export CLANG_TRIPLE="aarch64-linux-gnu-"
+export LD="ld.lld"
+export AR="llvm-ar"
+export NM="llvm-nm"
+export OBJCOPY="llvm-objcopy"
+export OBJDUMP="llvm-objdump"
+export STRIP="llvm-strip"
+export KBUILD_BUILD_USER="KaKe"
+export KBUILD_BUILD_HOST="Artix"
 
 JOBS="$(nproc --all)"
 
@@ -40,11 +48,13 @@ mkdir -p "${OUT_DIR}"
 echo "[1/2] Generating defconfig (${DEFCONFIG})..."
 make O="${OUT_DIR}" ARCH="${ARCH}" CC="${CC}" HOSTCC="${HOSTCC}" HOSTCXX="${HOSTCXX}" \
      CROSS_COMPILE="${CROSS_COMPILE}" CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
+     LD="${LD}" AR="${AR}" NM="${NM}" OBJCOPY="${OBJCOPY}" OBJDUMP="${OBJDUMP}" STRIP="${STRIP}" \
      "${DEFCONFIG}"
 
 echo "[2/2] Compiling Kernel (Image.gz-dtb and dtbs)..."
 make O="${OUT_DIR}" ARCH="${ARCH}" CC="${CC}" HOSTCC="${HOSTCC}" HOSTCXX="${HOSTCXX}" \
      CROSS_COMPILE="${CROSS_COMPILE}" CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
+     LD="${LD}" AR="${AR}" NM="${NM}" OBJCOPY="${OBJCOPY}" OBJDUMP="${OBJDUMP}" STRIP="${STRIP}" \
      -j"${JOBS}" Image.gz-dtb dtbs
 
 # Generate dtbo.img from compiled overlay dtbo files
