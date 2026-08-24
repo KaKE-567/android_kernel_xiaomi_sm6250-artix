@@ -36,8 +36,8 @@ $(obj)/dtc/dtc-lexer.lex.o: $(obj)/dtc/dtc-parser.h
 # and in fact, upstream chooses to just have _shipped versions of the files.
 # This is gross, so we add the build rules ourselves. We also make the
 # header output .h instead of .tab.h for bison, because aosp is broken.
-LEX ?= flex
-BISON ?= bison
+LEX ?= /usr/bin/flex
+BISON ?= /usr/bin/bison
 quiet_cmd_lex = LEX     $@
       cmd_lex = $(LEX) -o$@ $<
 quiet_cmd_bison = BISON   $@
