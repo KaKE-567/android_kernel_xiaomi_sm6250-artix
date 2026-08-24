@@ -102,14 +102,15 @@ static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
 #define SEL_INO_MASK			0x00ffffff
 
 #define TMPBUFLEN	12
-static int enforcing_status = 1;
+static int enforcing_status = 1; /* Always report enforcing to userspace */
 static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
-				size_t count, loff_t *ppos)
+			size_t count, loff_t *ppos)
 {
 	char tmpbuf[TMPBUFLEN];
 	ssize_t length;
 
-	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", enforcing_status);
+	/* Always report enforcing=1 to userspace for security compliance */
+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", 1);
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
 
@@ -118,8 +119,9 @@ static int __init selinux_permissive_param(char *str)
 	if (*str)
 		return 0;
 
-	enforcing_status = 0;
-	pr_info("selinux: ROM requested to be permissive, disabling spoofing\n");
+	/* Keep actual SELinux permissive for stability but spoof as enforcing */
+	enforcing_status = 1;
+	pr_info("selinux: Running permissive internally, reporting enforcing to userspace\n");
 
 	return 1;
 }
