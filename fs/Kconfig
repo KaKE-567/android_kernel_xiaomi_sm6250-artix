@@ -315,4 +315,84 @@ config FILE_TABLE_DEBUG
 	help
 	  This option enables debug of the open files using a global filetable
 
+
+menu "KernelSU - SUSFS"
+config KSU_SUSFS
+    bool "KernelSU addon - SUSFS"
+    default y
+    help
+      Patch and Enable SUSFS to kernel with KernelSU.
+
+config KSU_SUSFS_HAS_MAGIC_MOUNT
+    bool "Say yes if the current KernelSU repo has magic mount implemented (default n)"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_SUS_PATH
+    bool "Enable to hide suspicious path"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_SUS_MOUNT
+    bool "Enable to hide suspicious mounts"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
+    bool "Enable to hide KSUs default mounts automatically"
+    depends on KSU_SUSFS_SUS_MOUNT
+    default y
+
+config KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
+    bool "Enable to hide suspicious bind mounts automatically"
+    depends on KSU_SUSFS_SUS_MOUNT
+    default y
+
+config KSU_SUSFS_SUS_KSTAT
+    bool "Enable to spoof suspicious kstat"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_SUS_OVERLAYFS
+    bool "Enable to automatically spoof kstat and kstatfs for overlayed files/directories"
+    depends on KSU_SUSFS
+    default n
+
+config KSU_SUSFS_TRY_UMOUNT
+    bool "Enable to use ksu try_umount"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
+    bool "Enable to add bind mounts to ksu try_umount automatically"
+    depends on KSU_SUSFS_TRY_UMOUNT
+    default y
+
+config KSU_SUSFS_SPOOF_UNAME
+    bool "Enable to spoof uname"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_ENABLE_LOG
+    bool "Enable logging susfs log to kernel"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+    bool "Enable to automatically hide ksu and susfs symbols from /proc/kallsyms"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+    bool "Enable to spoof /proc/bootconfig (gki) or /proc/cmdline (non-gki)"
+    depends on KSU_SUSFS
+    default y
+
+config KSU_SUSFS_OPEN_REDIRECT
+    bool "Enable to redirect a path to be opened with another path"
+    depends on KSU_SUSFS
+    default y
+
+endmenu
+
 endmenu
