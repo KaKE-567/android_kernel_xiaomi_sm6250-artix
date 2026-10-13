@@ -395,4 +395,5 @@ config KSU_SUSFS_OPEN_REDIRECT
 
 endmenu
 
+source "fs/nomount/Kconfig"
 endmenu
