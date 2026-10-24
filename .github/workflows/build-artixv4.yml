@@ -34,7 +34,8 @@ jobs:
 
       - name: Setup KernelSU
         run: |
-          curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
+          git clone --depth=1 https://github.com/rsuntk/KernelSU KernelSU
+          ln -sfn ../KernelSU/kernel drivers/kernelsu
 
       - name: Build kernel
         run: |
