@@ -3888,7 +3888,7 @@ static void adreno_regulator_disable_poll(struct kgsl_device *device)
 static void adreno_gpu_model(struct kgsl_device *device, char *str,
 				size_t bufsz)
 {
-	snprintf(str, bufsz, "Adreno650v1");
+	snprintf(str, bufsz, "Adreno618v1");
 }
 
 static int adreno_suspend_device(struct kgsl_device *device,
