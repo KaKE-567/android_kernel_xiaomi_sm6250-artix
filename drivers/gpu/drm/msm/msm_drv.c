@@ -771,10 +771,11 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	}
 
 	/**
-	 * Realtime scheduling to process display updates and retire fences
-	 * with lowest latency.
+	 * this priority was found during empiric testing to have appropriate
+	 * realtime scheduling to process display updates and interact with
+	 * other real time and normal priority task
 	 */
-	param.sched_priority = 98;
+	param.sched_priority = 16;
 	for (i = 0; i < priv->num_crtcs; i++) {
 
 		/* initialize display thread */
