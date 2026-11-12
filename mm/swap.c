@@ -1017,6 +1017,9 @@ void __init swap_setup(void)
 		page_cluster = 2;
 	else
 		page_cluster = 3;
+#if defined(CONFIG_ZRAM) || defined(CONFIG_ZSWAP)
+	page_cluster = 0;
+#endif
 	/*
 	 * Right now other parts of the system means that we
 	 * _really_ don't want to cluster much more

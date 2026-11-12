@@ -3495,6 +3495,9 @@
 	/delete-property/ qcom,initial-pwrlevel;
 	/delete-property/ qcom,ca-target-pwrlevel;
 
+	/* Fast context-aware GPU frequency jump for particle & smoke rendering (4ms vs 12ms) */
+	qcom,ca-busy-penalty = <4000>;
+
 	qcom,msm-bus,num-cases = <13>;
 	qcom,msm-bus,vectors-KBps =
 		<26 512 0 0>,

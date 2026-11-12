@@ -41,7 +41,7 @@ BISON ?= /usr/bin/bison
 quiet_cmd_lex = LEX     $@
       cmd_lex = $(LEX) -o$@ $<
 quiet_cmd_bison = BISON   $@
-      cmd_bison = $(BISON) -d --output=$(@D)/$(notdir $(<:.y=.tab.c)) --defines=$(@D)/$(notdir $(<:.y=.h)) -Wno-conflicts-sr $<
+      cmd_bison = env -u BISON_PKGDATADIR $(BISON) -d --output=$(@D)/$(notdir $(<:.y=.tab.c)) --defines=$(@D)/$(notdir $(<:.y=.h)) -Wno-conflicts-sr $<
 %.lex.c: %.l
 	$(call if_changed,lex)
 %.tab.c %.h: %.y

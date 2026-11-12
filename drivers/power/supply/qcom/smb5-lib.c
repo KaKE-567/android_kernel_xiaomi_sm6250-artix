@@ -4887,9 +4887,11 @@ int smblib_set_prop_sdp_current_max(struct smb_charger *chg,
 			return rc;
 		}
 
-		/* handle the request only when USB is present */
-		if (pval.intval && (val->intval != 0))
-			rc = smblib_handle_usb_current(chg, val->intval);
+		/* handle the request only when USB is present and charger is SDP */
+		if (pval.intval && (val->intval != 0)) {
+			if (chg->real_charger_type == POWER_SUPPLY_TYPE_USB)
+				rc = smblib_handle_usb_current(chg, val->intval);
+		}
 	} else if (chg->system_suspend_supported) {
 		if (val->intval <= USBIN_25MA)
 			rc = vote(chg->usb_icl_votable,
@@ -5952,39 +5954,8 @@ irqreturn_t icl_change_irq_handler(int irq, void *data)
 
 static void smblib_cc_un_compliant_charge_work(struct work_struct *work)
 {
-	union power_supply_propval val = {0, };
-	int rc, usb_present = 0;
-
-	struct smb_charger *chg = container_of(work, struct smb_charger,
-					cc_un_compliant_charge_work.work);
-
-	rc = smblib_get_prop_usb_present(chg, &val);
-	if (rc < 0) {
-		smblib_err(chg, "Couldn't get usb present rc = %d\n", rc);
-		return;
-	}
-
-	usb_present = val.intval;
-	/*
-	 * if CC pin of C to A cable is not connected to the receptacle
-	 * or CC pin is bad or short to VBUS or C to C cable CC line is float,
-	 * disable APSD CC trigger since pm8150b CC protection voltage
-	 * threshold is very high (22V), our wire charging maxium charging
-	 * vbus is below 13.2V.
-	 */
-	if (usb_present
-			&& (chg->typec_mode == POWER_SUPPLY_TYPEC_NONE ||
-				chg->typec_mode == POWER_SUPPLY_TYPEC_NON_COMPLIANT ||
-				chg->snk_debug_acc_detected == true)
-			&& (chg->cc_un_compliant_detected == false)) {
-		vote( chg->usb_icl_votable, CC_UN_COMPLIANT_VOTER, true, 500000);
-		vote( chg->fcc_votable, CC_UN_COMPLIANT_VOTER, true, 500000);
-		pr_err("CC uncompliant, set icl = 500mA\n");
-		chg->cc_un_compliant_detected = true;
-		//smblib_apsd_enable(chg, true);
-		smblib_hvdcp_detect_enable(chg, true);
-		smblib_rerun_apsd_if_required(chg);
-	}
+	/* Do not throttle USB-A to Type-C cables or float CC to 500mA */
+	return;
 }
 
 static void smblib_micro_usb_plugin(struct smb_charger *chg, bool vbus_rising)

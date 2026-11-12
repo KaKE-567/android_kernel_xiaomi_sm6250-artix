@@ -1252,10 +1252,8 @@ static void binder_transaction_priority(struct task_struct *task,
 	t->saved_priority.sched_policy = task->policy;
 	t->saved_priority.prio = task->normal_prio;
 
-	if (!inherit_rt && is_rt_policy(desired_prio.sched_policy)) {
-		desired_prio.prio = NICE_TO_PRIO(0);
-		desired_prio.sched_policy = SCHED_NORMAL;
-	}
+	/* Always inherit RT priority to prevent priority inversion in audio/display pipeline */
+	(void)inherit_rt;
 
 	if (node_prio.prio < t->priority.prio ||
 	    (node_prio.prio == t->priority.prio &&

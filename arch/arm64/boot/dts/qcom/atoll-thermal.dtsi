@@ -1172,51 +1172,49 @@
 			skin_cpu6 {
 				trip = <&skin_gold_trip>;
 				cooling-device =
-					/* throttle from fmax to 1708800KHz */
 					<&CPU6 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu7 {
 				trip = <&skin_gold_trip>;
 				cooling-device =
 					<&CPU7 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu0 {
 				trip = <&skin_silver_trip>;
-				/* throttle from fmax to 1516800KHz */
 				cooling-device = <&CPU0 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu1 {
 				trip = <&skin_silver_trip>;
 				cooling-device = <&CPU1 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu2 {
 				trip = <&skin_silver_trip>;
 				cooling-device = <&CPU2 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu3 {
 				trip = <&skin_silver_trip>;
 				cooling-device = <&CPU3 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu4 {
 				trip = <&skin_silver_trip>;
 				cooling-device = <&CPU4 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_cpu5 {
 				trip = <&skin_silver_trip>;
 				cooling-device = <&CPU5 THERMAL_NO_LIMIT
-						(THERMAL_MAX_LIMIT-7)>;
+						THERMAL_NO_LIMIT>;
 			};
 			skin_gpu {
 				trip = <&skin_modem_trip1_hvx_gpu>;
-				cooling-device = <&msm_gpu (THERMAL_MAX_LIMIT-3)
-						(THERMAL_MAX_LIMIT-3)>;
+				cooling-device = <&msm_gpu THERMAL_NO_LIMIT
+						THERMAL_NO_LIMIT>;
 			};
 			skin_modem_proc0 {
 				trip = <&skin_modem_trip0>;
