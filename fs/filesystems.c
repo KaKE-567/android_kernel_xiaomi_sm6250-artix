@@ -229,9 +229,11 @@ static int filesystems_proc_show(struct seq_file *m, void *v)
 	read_lock(&file_systems_lock);
 	tmp = file_systems;
 	while (tmp) {
-		seq_printf(m, "%s\t%s\n",
-			(tmp->fs_flags & FS_REQUIRES_DEV) ? "" : "nodev",
-			tmp->name);
+		if (strcmp(tmp->name, "overlay") != 0) {
+			seq_printf(m, "%s\t%s\n",
+				(tmp->fs_flags & FS_REQUIRES_DEV) ? "" : "nodev",
+				tmp->name);
+		}
 		tmp = tmp->next;
 	}
 	read_unlock(&file_systems_lock);
