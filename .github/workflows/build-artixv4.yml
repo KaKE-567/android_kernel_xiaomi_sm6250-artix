@@ -34,7 +34,7 @@ jobs:
 
       - name: Setup KernelSU
         run: |
-          git clone --depth=1 https://github.com/rsuntk/KernelSU KernelSU
+          git clone --depth=1 https://github.com/backslashxx/KernelSU KernelSU
           ln -sfn ../KernelSU/kernel drivers/kernelsu
 
       - name: Build kernel
@@ -76,6 +76,16 @@ jobs:
         with:
           name: ArtixV4-Kernel
           path: ArtixV4-*.zip
+          retention-days: 7
+
+      - name: Upload Image.gz-dtb
+        uses: actions/upload-artifact@v4
+        with:
+          name: Image.gz-dtb
+          path: |
+            out/arch/arm64/boot/Image.gz-dtb
+            out/arch/arm64/boot/Image.gz
+            out/arch/arm64/boot/Image
           retention-days: 7
 
       - name: Upload build log (on failure)
